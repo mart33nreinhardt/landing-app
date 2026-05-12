@@ -29,8 +29,17 @@
             <input type="search" class="searchNavbar" placeholder="Search">
             <i class="bi bi-search iconSearch fst-bold"></i>
             </div>
+            <div class="d-flex align-items-center position-relative">
+
             <i class="bi bi-cart4 fs-2"></i>
+                <span id="cart-count" class="position-absolute translate-middle badge rounded-pill bg-danger" style="font-size: 0.5em;">
+                0
+            </span>
+            </div>
+            
+            <button class="btn">
             <i class="bi bi-list fs-1 btn-hamburger"></i>
+            </button>
         </div>
     </header>
 
@@ -45,19 +54,29 @@
         </section>
 
         <section id="produk" class="content-section product">
-            <h2>Harga Jaseb</h2>
+          <div class="container">
+            <h2 class="section-title">Harga Jaseb</h2>
 
-            <div class="">
-
+            <div id="product-container" class="product-grid">
+              
+            </div>
             </div>
         </section>
 
-        <section id="kontak" class="content-section">
-            <div>
-                <h1>KONTAK</h1>
-            </div>
+        <section id="kontak" class="content-section contact">
+            <h2>KONTAK</h2>
         </section>
     </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2026 Jasa Sebar Amanah. All rights reserved.</p>
+            <div class="social-links">
+                <a href="#" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+                <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+            </div>
+        </div>
+    </footer>
 
     <script src="main.js"></script>
 </body>

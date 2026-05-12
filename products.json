@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "name": "Satuan Hemat",
+    "category": "Basic",
+    "price": "Rp 5.000",
+    "perpfpm": "100",
+    "image": "https://picsum.photos/id/101/400/250",
+    "description": "Jangkauan luas, member makin eksis, hasil estetik maksimal.",
+    "tags": ["1x sebar", "Kelipatan", "Screenshot pendek"]
+  },
+  {
+    "id": 2,
+    "name": "Satuan Sultan",
+    "category": "Premium",
+    "price": "Rp 5.500",
+    "perpfpm": "100",
+    "image": "https://picsum.photos/id/101/400/250",
+    "description": "Harga berlaku kelipatan",
+    "tags": ["1x sebar", "Kelipatan", "Screenshot panjang"]
+  },
+  {
+    "id": 3,
+    "name": "Paket Hemat 01",
+    "category": "Basic",
+    "price": "Rp 2.000",
+    "perpfpm": "100",
+    "image": "https://picsum.photos/id/100/400/250",
+    "description": "Cocok buat pemula yang baru mau mulai promosi base dengan budget minim.",
+    "tags": ["Amanah", "Fast"]
+  },
+  {
+    "id": 4,
+    "name": "Paket Sultan 02",
+    "category": "Premium",
+    "price": "Rp 5.000",
+    "perpfpm": "100",
+    "image": "https://picsum.photos/id/101/400/250",
+    "description": "Jangkauan luas, member makin eksis, hasil estetik maksimal.",
+    "tags": ["High Reach", "Priority"]
+  }
+]
