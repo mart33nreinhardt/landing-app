@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" href="style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <title>Project</title>
 </head>
 <body>
@@ -24,21 +25,15 @@
             </ul>
             
         </nav>
-        <div class="d-flex align-items-end gap-2">
-            <!-- <div class="d-flex align-items-center position-relative">
-                <input type="search" class="searchNavbar" placeholder="Search">
-                <i class="bi bi-search iconSearch fst-bold"></i>
-            </div> -->
-            <div class="d-inline-block align-items-center position-relative">
-                <i class="bi bi-cart4 fs-2"></i>
-                <span id="cart-count" class="position-absolute translate-middle badge rounded-pill bg-danger" style="font-size: 0.5em;">
-                    0
-                </span>
-            </div>
-            <button class="btn">
-                <i class="bi bi-list fs-1 btn-hamburger"></i>
-            </button>
+        <div class="header-actions">
+        <div class="cart-wrapper"  onclick="toggleCart()">
+            <i class="bi bi-cart4"></i>
+            <span id="cart-count" class="badge rounded-pill bg-danger">0</span>
         </div>
+        <button class="btn-menu" >
+            <i class="bi bi-list"></i>
+        </button>
+    </div>
     </header>
 
     <main>
@@ -70,6 +65,58 @@
             </div>
         </section>
 
+        <!-- CART DRAWER OVERLAY -->
+<div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+
+<!-- CART DRAWER -->
+<div class="cart-drawer" id="cart-drawer">
+  <div class="cart-header">
+    <div class="cart-title">
+      <i class="bi bi-cart3"></i> Keranjang
+    </div>
+    <button class="cart-close" onclick="toggleCart()">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <!-- TAB -->
+  <div class="cart-tabs">
+    <button class="cart-tab active" id="tab-btn-cart" onclick="switchTab('cart')">
+      Keranjang
+    </button>
+    <button class="cart-tab" style="display:none" id="tab-btn-receipt" onclick="switchTab('receipt')">
+      Receipt
+    </button>
+  </div>
+
+  <!-- TAB: CART -->
+  <div class="cart-body" id="tab-cart">
+    <div id="cart-items-list"></div>
+  </div>
+
+  <!-- TAB: RECEIPT -->
+  <div class="cart-body" id="tab-receipt" style="display:none">
+    <div id="receipt-content"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="cart-footer" id="cart-footer">
+    <div class="cart-summary">
+      <div class="summary-row">
+        <span>Subtotal (<span id="item-count">0</span> item)</span>
+        <span id="subtotal-val">Rp 0</span>
+      </div>
+      <div class="summary-divider"></div>
+      <div class="summary-row total">
+        <span>Total</span>
+        <span id="total-val">Rp 0</span>
+      </div>
+    </div>
+    <button class="btn-order" onclick="prosesOrder()">
+      <i class="bi bi-check-lg"></i> Proses Order
+    </button>
+  </div>
+</div>
     </main>
 
     <footer>

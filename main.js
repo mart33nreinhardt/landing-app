@@ -2,7 +2,7 @@ let cart = JSON.parse(localStorage.getItem('CART_DATA')) || []
 let allProducts = []
 const navItems = document.querySelectorAll('nav ul li');
 const sections = document.querySelectorAll('section')
-const hamburger = document.querySelector('.btn-hamburger')
+const hamburger = document.querySelector('.btn-menu')
 const navMenu = document.querySelector('nav ul')
 
 const changeActiveNav = (id) => {
@@ -16,12 +16,13 @@ const changeActiveNav = (id) => {
 }
 
 const options = {
-    threshold: 0.6
+    rootMargin: '-80px 0px -50% 0px', 
+    threshold: 0
 }
 
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-        if(entry.isIntersecting){
+        if(entry.isIntersecting && entry.intersectionRatio >= 0){
             changeActiveNav(entry.target.id)
         }
     })
@@ -30,9 +31,13 @@ const observer = new IntersectionObserver((entries) => {
 sections.forEach(section => observer.observe(section))
 
 navItems.forEach(item => {
+    // item.addEventListener('click', function(){
+    //     navItems.forEach(li => li.classList.remove('active'))
+    //     this.classList.add('active')
+    // })
+
     item.addEventListener('click', function(){
-        navItems.forEach(li => li.classList.remove('active'))
-        this.classList.add('active')
+    navMenu.classList.remove('show');
     })
 })
 
@@ -70,8 +75,8 @@ function renderProducts(products){
         <div class="card-body">
           <div class="card-name">${product.name}</div>
           <div class="card-price-wrap">
-          <div class="card-price">${product.price}</div>
-          <div class="card-price-real">${product.priceReal}</div>
+          <div class="card-price">${fmt(product.price)}</div>
+          <div class="card-price-real">${fmt(product.priceReal)}</div>
           </div>
           <p class="card-text">${product.description}</p>
           <div class="card-tags">${tagsHTML}</div>
@@ -87,6 +92,40 @@ function renderProducts(products){
 }
 
 loadProducts()
+
+function hitungHarga() {
+  const { lpfpm, sebar, hari, ss, inrush } = calcState
+
+  const lpfpmNum = parseInt(lpfpm)
+  const sebarNum = parseInt(sebar)
+  const hariNum  = parseInt(hari)
+
+  const baseTotal = (lpfpmNum / 50) * 100 * sebarNum * hariNum
+  const ssFee     = ss === 'panjang' && lpfpmNum > 50
+    ? (lpfpmNum / 100) * 25 * sebarNum * hariNum
+    : 0
+  const inrushFee = inrush * 100
+
+  return baseTotal + ssFee + inrushFee
+}
+
+function addCustomToCart() {
+  const { lpfpm, sebar, hari, ss, inrush } = calcState
+  if (!lpfpm || !sebar || !hari) return
+
+  const item = {
+    id: 'custom-' + Date.now(),
+    type: 'custom',
+    name: `Sebar ${sebar}x · ${hari} hari · ${lpfpm} lpfpm`,
+    lpfpm, sebar, hari, ss, inrush,
+    price: hitungHarga(),
+    quantity: 1
+  }
+
+  cart.push(item)
+  saveCart()
+  updateCartCount()
+}
 
 function addToCart(productId){
     const product = allProducts.find(p => p.id === productId)
@@ -182,6 +221,10 @@ function renderCalculator() {
                     <button class="calc-order-btn" onclick="orderViaWA()">
                         Pesan via WhatsApp <i class="bi bi-whatsapp"></i>
                     </button>
+
+                    <button class="cart-btn" onclick="addCustomToCart()">
+            + Keranjang
+          </button>
                 </div>
 
                 <div class="calc-note">
@@ -234,9 +277,8 @@ function updateCalc() {
     const ssFee         = ss === 'panjang' && lpfpmNum > 50 ? (lpfpmNum / 100) * 25 * sebarNum * hariNum : 0;
     const inrushFee     = inrush * 100;
     const jumlSs        = ssFee > 0 ? sebarNum * hariNum : 0;
-    const total         = baseTotal + ssFee + inrushFee;
+    const total         = hitungHarga();
 
-    const fmt  = (n) => 'Rp. ' + n.toLocaleString('id-ID');
     const row  = (label, val, sub = '') => `
         <div class="calc-detail-row">
             <div class="calc-detail-left">
@@ -330,3 +372,387 @@ function orderViaWA() {
 }
 
 renderCalculator();
+
+
+// ── CART UI ──────────────────────────────────────────────────
+
+function toggleCart() {
+  const drawer  = document.getElementById('cart-drawer')
+  const overlay = document.getElementById('cart-overlay')
+  const isOpen  = drawer.classList.contains('open')
+  drawer.classList.toggle('open', !isOpen)
+  overlay.classList.toggle('open', !isOpen)
+  if (!isOpen) renderCartUI()
+}
+
+function switchTab(tab) {
+  document.getElementById('tab-cart').style.display    = tab === 'cart'    ? 'block' : 'none'
+  document.getElementById('tab-receipt').style.display = tab === 'receipt' ? 'block' : 'none'
+  document.getElementById('cart-footer').style.display = tab === 'cart'    ? 'block' : 'none'
+  document.getElementById('tab-btn-cart').classList.toggle('active',    tab === 'cart')
+  document.getElementById('tab-btn-receipt').classList.toggle('active', tab === 'receipt')
+  document.getElementById('tab-btn-receipt').style.display = tab === 'cart' ? 'none' : 'block'
+}
+
+/* function renderCartUI() {
+  const list    = document.getElementById('cart-items-list')
+  const footer  = document.getElementById('cart-footer')
+
+  if (!cart.length) {
+    list.innerHTML = `
+      <div class="cart-empty">
+        <i class="bi bi-cart-x"></i>
+        <p>Keranjang masih kosong</p>
+      </div>`
+    footer.style.display = 'none'
+    return
+  }
+
+  console.log(cart)
+
+  list.innerHTML = cart.map((item, idx) => `
+    <div class="cart-item">
+      <div class="item-icon ${item.type}">
+        ${item.type === 'paket' ? '<i class="bi bi-box-seam"></i>' : '<i class="bi bi-basket2"></i>'}
+      </div>
+      <div class="item-body">
+        <span class="item-badge badge-${item.type}">${item.type}</span>
+        <div class="item-name">${item.name}</div>
+        <div class="qty-row">
+          <button class="qty-btn" onclick="changeQty(${idx}, -1)">−</button>
+          <span class="qty-num">${item.quantity}</span>
+          <button class="qty-btn" onclick="changeQty(${idx}, 1)">+</button>
+          <button class="del-btn" onclick="removeItem(${idx})">
+            <i class="bi bi-trash3"></i>
+          </button>
+        </div>
+      </div>
+      <div class="item-price-wrap">
+        <div class="item-price">${fmt(item.price * item.quantity)}</div>
+        <div class="item-price-unit">${fmt(item.price)} / item</div>
+      </div>
+    </div>
+  `).join('')
+
+  const totalQty = cart.reduce((s, i) => s + i.quantity, 0)
+  const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0)
+
+  document.getElementById('item-count').textContent  = totalQty
+  document.getElementById('subtotal-val').textContent = fmt(subtotal)
+  document.getElementById('total-val').textContent    = fmt(subtotal)
+  footer.style.display = 'block'
+} */
+
+  function renderCartUI() {
+  const list   = document.getElementById('cart-items-list')
+  const footer = document.getElementById('cart-footer')
+
+  if (!cart.length) {
+    list.innerHTML = `
+      <div class="cart-empty">
+        <i class="bi bi-cart-x"></i>
+        <p>Keranjang masih kosong</p>
+      </div>`
+    footer.style.display = 'none'
+    return
+  }
+
+  console.log(cart)
+
+  list.innerHTML = cart.map((item, idx) => `
+    <div class="cart-item">
+      <div class="item-icon ${item.type}">
+        ${item.type === 'paket' ? '<i class="bi bi-box-seam"></i>' : '<i class="bi bi-basket2"></i>'}
+      </div>
+      <div class="item-body">
+        <span class="item-badge badge-${item.type}">${item.type}</span>
+        <div class="item-name">${item.name}</div>
+
+          <div class="item-spec-grid">
+            <div class="item-spec-row">
+              <span class="spec-label">LPFPM</span>
+              <span class="spec-val">${item.lpfpm}</span>
+            </div>
+            <div class="item-spec-row">
+              <span class="spec-label">Sebar</span>
+              <span class="spec-val">${item.sebar}x / hari</span>
+            </div>
+            <div class="item-spec-row">
+              <span class="spec-label">Hari</span>
+              <span class="spec-val">${item.hari} hari</span>
+            </div>
+            <div class="item-spec-row">
+              <span class="spec-label">Screenshot</span>
+              <span class="spec-val">${item.ss}</span>
+            </div>
+            ${item.inrush > 0 ? `
+            <div class="item-spec-row">
+              <span class="spec-label">Inrush</span>
+              <span class="spec-val">${item.inrush} jam</span>
+            </div>` : ''}
+          </div>
+
+        <div class="qty-row">
+          <span class="qty-label">Qty</span>
+          <button class="qty-btn" onclick="changeQty(${idx}, -1)">−</button>
+          <span class="qty-num">${item.quantity}</span>
+          <button class="qty-btn" onclick="changeQty(${idx}, 1)">+</button>
+          <button class="del-btn" onclick="removeItem(${idx})">
+            <i class="bi bi-trash3"></i>
+          </button>
+        </div>
+      </div>
+      <div class="item-price-wrap">
+        <div class="item-price">${fmt(item.price * item.quantity)}</div>
+        <div class="item-price-unit">${fmt(item.price)} / item</div>
+      </div>
+    </div>
+  `).join('')
+
+  const totalQty = cart.reduce((s, i) => s + i.quantity, 0)
+  const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0)
+
+  document.getElementById('item-count').textContent   = totalQty
+  document.getElementById('subtotal-val').textContent = fmt(subtotal)
+  document.getElementById('total-val').textContent    = fmt(subtotal)
+  footer.style.display = 'block'
+}
+
+function changeQty(idx, delta) {
+  cart[idx].quantity = Math.max(1, cart[idx].quantity + delta)
+  saveCart()
+  updateCartCount()
+  renderCartUI()
+}
+
+function removeItem(idx) {
+  cart.splice(idx, 1)
+  saveCart()
+  updateCartCount()
+  renderCartUI()
+}
+
+function prosesOrder() {
+  renderReceipt()
+  switchTab('receipt')
+}
+
+// function renderReceipt() {
+//   const now    = new Date()
+//   const tgl    = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })
+//   const jam    = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+//   const code   = 'BNDT-' + Date.now().toString().slice(-6)
+//   const total  = cart.reduce((s, i) => s + i.price * i.quantity, 0)
+//   const totalQty = cart.reduce((s, i) => s + i.quantity, 0)
+
+//   const itemsHTML = cart.map(item => `
+//     <div class="rcpt-item-row">
+//       <span>${item.name} ×${item.quantity}</span>
+//       <span>${fmt(item.price * item.quantity)}</span>
+//     </div>
+//     <div class="rcpt-item-desc">${fmt(item.price)}/item</div>
+//   `).join('')
+
+//   const waMsg = encodeURIComponent(
+//     `Halo kak, mau order!\nOrder ID: ${code}\nTanggal: ${tgl} ${jam}\n\n` +
+//     cart.map(i => `• ${i.name} ×${i.quantity} — ${fmt(i.price * i.quantity)}\n  ${i.desc}`).join('\n') +
+//     `\n\nTotal: ${fmt(total)}`
+//   )
+
+//   document.getElementById('receipt-content').innerHTML = `
+//     <div class="receipt-card">
+//       <div class="rcpt-brand">Bandit's Store</div>
+//       <div class="rcpt-sub">wa.me/6285863714376</div>
+//       <hr class="rcpt-divider">
+//       <div class="rcpt-row"><span>Order ID</span><span>${code}</span></div>
+//       <div class="rcpt-row"><span>Tanggal</span><span>${tgl}, ${jam}</span></div>
+//       <div class="rcpt-row"><span>Total item</span><span>${totalQty} item</span></div>
+//       <hr class="rcpt-divider">
+//       ${itemsHTML}
+//       <hr class="rcpt-divider">
+//       <div class="rcpt-total-row"><span>TOTAL</span><span>${fmt(total)}</span></div>
+//       <hr class="rcpt-divider">
+//       <div class="rcpt-footer-text">Terimakasih sudah order!<br>Lanjutkan konfirmasi via WhatsApp</div>
+//     </div>
+//     <a href="https://wa.me/6285863714376?text=${waMsg}" target="_blank" style="text-decoration:none">
+//       <button class="btn-wa">
+//         <i class="bi bi-whatsapp"></i> Konfirmasi via WhatsApp
+//       </button>
+//     </a>
+//     <button class="btn-back-cart" onclick="switchTab('cart')">
+//       ← Kembali ke keranjang
+//     </button>
+//   `
+// }
+
+function renderReceipt() {
+  const now      = new Date()
+  const tgl      = now.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  const jam      = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+  const code     = 'BNDT-' + Date.now().toString().slice(-6)
+  const total    = cart.reduce((s, i) => s + i.price * i.quantity, 0)
+  const totalQty = cart.reduce((s, i) => s + i.quantity, 0)
+
+  const itemsHTML = cart.map(item => {
+    const lpfpmNum   = parseInt(item.lpfpm  || 0)
+    const sebarNum   = parseInt(item.sebar  || 0)
+    const hariNum    = parseInt(item.hari   || 0)
+    const basePerSebar = item.type === 'custom' ? (lpfpmNum / 50) * 100 : 0
+    const baseTotal    = item.type === 'custom' ? basePerSebar * sebarNum * hariNum : item.price
+    const ssFee        = item.type === 'custom' && item.ss === 'panjang' && lpfpmNum > 50
+      ? (lpfpmNum / 100) * 25 * sebarNum * hariNum : 0
+    const inrushFee    = item.type === 'custom' ? (item.inrush || 0) * 100 : 0
+
+    return `
+      <div class="rcpt-dots" style="margin:6px 0"></div>
+
+      <div class="rcpt-item-row">
+        <span>${item.type === 'custom'
+          ? `Jaseb ${sebarNum}× sebar ${hariNum} hari`
+          : item.name} ×${item.quantity}</span>
+        <span>${fmt(item.price * item.quantity)}</span>
+      </div>
+
+      ${item.type === 'custom' ? `
+        <div class="rcpt-item-note">${lpfpmNum} lpfpm · ${fmt(basePerSebar)}/sebar</div>
+
+        ${item.ss !== 'tidak' ? `
+        <div class="rcpt-item-row" style="font-size:11px; color:#888">
+          <span>Screenshot ${item.ss}</span>
+          <span>${item.ss === 'panjang' ? fmt(ssFee * item.quantity) : 'gratis'}</span>
+        </div>` : ''}
+
+        ${item.inrush > 0 ? `
+        <div class="rcpt-item-row" style="font-size:11px; color:#888">
+          <span>Inrush ${item.inrush} jam</span>
+          <span>${fmt(inrushFee * item.quantity)}</span>
+        </div>` : ''}
+      ` : `
+        <div class="rcpt-item-note">${item.description || ''}</div>
+      `}
+    `
+  }).join('')
+
+  const waMsg = encodeURIComponent(
+    `Halo kak, mau order!\nOrder ID: ${code}\nTanggal: ${tgl} ${jam}\n\n` +
+    cart.map(i => {
+      const base = i.type === 'custom'
+        ? `${i.lpfpm} lpfpm · ${i.sebar}x sebar · ${i.hari} hari · SS: ${i.ss}` + (i.inrush > 0 ? ` · Inrush ${i.inrush}j` : '')
+        :  ''
+      return `• ${i.name} ×${i.quantity} — ${fmt(i.price * i.quantity)}\n  ${base}`
+    }).join('\n') +
+    `\n\nTotal: ${fmt(total)}`
+  )
+
+  document.getElementById('receipt-content').innerHTML = `
+    <div class="receipt-card">
+      <div class="rcpt-head">
+        <div class="rcpt-brand">Bandit's Store</div>
+        <div class="rcpt-sub">wa.me/6285863714376</div>
+      </div>
+      <div class="rcpt-dots"></div>
+      <div class="rcpt-meta">
+        <div class="rcpt-meta-row"><span>Order</span><span>${code}</span></div>
+        <div class="rcpt-meta-row"><span>Tanggal</span><span>${tgl} ${jam}</span></div>
+        <div class="rcpt-meta-row"><span>Total item</span><span>${totalQty} item</span></div>
+      </div>
+      <div class="rcpt-dots"></div>
+      <div class="rcpt-table-head">
+        <span>Item</span><span>Harga</span>
+      </div>
+      ${itemsHTML}
+      <div class="rcpt-dots" style="margin-top:8px"></div>
+      <div class="rcpt-total-row">
+        <span>TOTAL</span><span>${fmt(total)}</span>
+      </div>
+      <div class="rcpt-dots"></div>
+      <div class="rcpt-footer">Terimakasih sudah order!<br>Silahkan lanjutkan proses pemesanan di WhatsApp</div>
+    </div>
+    <button class="btn-wa" onclick="downloadAndWA('${waMsg}')">
+        <i class="bi bi-whatsapp"></i> Simpan & Kirim ke WhatsApp
+    </button>
+    <button class="btn-back-cart" onclick="switchTab('cart')">← Kembali ke keranjang</button>
+  `
+}
+
+/* async function downloadReceipt() {
+  const el = document.querySelector('.receipt-card')
+
+  const canvas = await html2canvas(el, {
+    backgroundColor: '#ffffff',
+    scale: 2,
+    useCORS: true
+  })
+
+  const link = document.createElement('a')
+  link.download = `receipt-BNDT-${Date.now().toString().slice(-6)}.jpg`
+  link.href = canvas.toDataURL('image/jpeg', 0.95)
+  link.click()
+} */
+
+const BOT_TOKEN = '8804770054:AAFj7Z7NKT1NRlyVdJmlkf07OZJAxZ2J6_0'
+const CHAT_ID   = '5825458189'
+
+async function downloadAndWA(waMsg) {
+  const total  = cart.reduce((s, i) => s + i.price * i.quantity, 0)
+  const code   = 'BNDT-' + Date.now().toString().slice(-6)
+
+  const el     = document.querySelector('.receipt-card')
+  const canvas = await html2canvas(el, { backgroundColor: '#ffffff', scale: 2 })
+
+  await Promise.all([
+    // _downloadFromCanvas(canvas, code),
+    _kirimTelegramFromCanvas(canvas, code, total)
+  ])
+
+  setTimeout(() => {
+    window.open(`https://wa.me/6285863714376?text=${waMsg}`, '_blank')
+  }, 500)
+}
+
+function _downloadFromCanvas(canvas, code) {
+  const link    = document.createElement('a')
+  link.download = `receipt-${code}.jpg`
+  link.href     = canvas.toDataURL('image/jpeg', 0.95)
+  link.click()
+}
+
+async function _kirimTelegramFromCanvas(canvas, code, total) {
+  try {
+    const blob  = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.95))
+    const items = cart.map(i =>
+      `• ${i.name} ×${i.quantity} — ${fmt(i.price * i.quantity)}` +
+      (i.type === 'custom'
+        ? `\n  ${i.lpfpm} lpfpm · ${i.sebar}x sebar · ${i.hari} hari · SS: ${i.ss}` +
+          (i.inrush > 0 ? ` · Inrush ${i.inrush}j` : '')
+        : '')
+    ).join('\n')
+
+    const formData = new FormData()
+    formData.append('chat_id', CHAT_ID)
+    formData.append('photo', blob, `receipt-${code}.jpg`)
+    formData.append('caption',
+      `🛒 *Order Baru!*\n` +
+      `Order ID: \`${code}\`\n` +
+      `Tanggal: ${new Date().toLocaleString('id-ID')}\n\n` +
+      `${items}\n\n` +
+      `*Total: ${fmt(total)}*`
+    )
+    formData.append('parse_mode', 'Markdown')
+
+    const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+      method: 'POST',
+      body:   formData
+    })
+
+    const resJson = await res.json()
+console.log('Telegram response:', resJson)
+
+    return res.ok
+  } catch(e) {
+    console.error('Telegram error:', e)
+    return false
+  }
+}
+// helper format rupiah (kalau belum ada)
+const fmt = n => 'Rp ' + Math.round(n).toLocaleString('id-ID')
