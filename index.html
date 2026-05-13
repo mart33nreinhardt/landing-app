@@ -20,25 +20,23 @@
             <ul class="nav-menu">
                 <li class="active"><a href="#home">Home</a></li>
                 <li><a href="#produk">Price</a></li>
-                <li><a href="#kontak">Kontak</a></li>
+                <!-- <li><a href="#kontak">Kontak</a></li> -->
             </ul>
             
         </nav>
         <div class="d-flex align-items-center gap-2">
             <div class="d-flex align-items-center position-relative">
-            <input type="search" class="searchNavbar" placeholder="Search">
-            <i class="bi bi-search iconSearch fst-bold"></i>
+                <input type="search" class="searchNavbar" placeholder="Search">
+                <i class="bi bi-search iconSearch fst-bold"></i>
             </div>
             <div class="d-flex align-items-center position-relative">
-
-            <i class="bi bi-cart4 fs-2"></i>
+                <i class="bi bi-cart4 fs-2"></i>
                 <span id="cart-count" class="position-absolute translate-middle badge rounded-pill bg-danger" style="font-size: 0.5em;">
-                0
-            </span>
+                    0
+                </span>
             </div>
-            
             <button class="btn">
-            <i class="bi bi-list fs-1 btn-hamburger"></i>
+                <i class="bi bi-list fs-1 btn-hamburger"></i>
             </button>
         </div>
     </header>
@@ -57,26 +55,46 @@
           <div class="container">
             <h2 class="section-title">Harga Jaseb</h2>
 
+            <div style="text-align:center;">
+            <h4 class="section-subtitle">Custom Calculate</h4>
+            </div>
+            <div id="calculate-custom-container" class="calculator"></div>
+            
+
+            <div style="text-align:center;">
+            <h4 class="section-subtitle">Paket <span>Promo</span></h4>
+            </div>
             <div id="product-container" class="product-grid">
               
             </div>
             </div>
         </section>
 
-        <section id="kontak" class="content-section contact">
-            <h2>KONTAK</h2>
-        </section>
     </main>
 
     <footer>
-        <div class="footer-content">
-            <p>&copy; 2026 Jasa Sebar Amanah. All rights reserved.</p>
-            <div class="social-links">
-                <a href="#" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
-                <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
-            </div>
+    <div class="footer-top">
+        <div class="footer-brand">
+            Bandit's <span>Store</span>
         </div>
-    </footer>
+        <div class="footer-hours">
+            <div class="hours-pill">09:00 – 21:00</div>
+            <div class="hours-label">Jam Operasional</div>
+        </div>
+        <div class="footer-contact">
+            <a href="https://wa.me/6285863714376" aria-label="WhatsApp">
+                <i class="bi bi-whatsapp"></i> WhatsApp
+            </a>
+            <a href="https://www.instagram.com/toko__madeena/" aria-label="Instagram">
+                <i class="bi bi-instagram"></i> Instagram
+            </a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <span>&copy; 2026 Bandit's Store. All rights reserved.</span>
+        <!-- <span>Bandung, Indonesia</span> -->
+    </div>
+</footer>
 
     <script src="main.js"></script>
 </body>

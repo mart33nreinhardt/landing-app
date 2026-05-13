@@ -1,42 +1,35 @@
 [
   {
-    "id": 1,
-    "name": "Satuan Hemat",
-    "category": "Basic",
-    "price": "Rp 5.000",
-    "perpfpm": "100",
-    "image": "https://picsum.photos/id/101/400/250",
-    "description": "Jangkauan luas, member makin eksis, hasil estetik maksimal.",
-    "tags": ["1x sebar", "Kelipatan", "Screenshot pendek"]
-  },
-  {
     "id": 2,
     "name": "Satuan Sultan",
-    "category": "Premium",
-    "price": "Rp 5.500",
-    "perpfpm": "100",
+    "category": "Basic",
+    "price": "Rp 950",
+    "priceReal": "Rp 1.000",
+    "perpfpm": "500",
     "image": "https://picsum.photos/id/101/400/250",
-    "description": "Harga berlaku kelipatan",
-    "tags": ["1x sebar", "Kelipatan", "Screenshot panjang"]
+    "description": "Buat kamu yang baru mau tes ombak atau sekadar pengen jangkauan luas tanpa bikin dompet nangis. Cocok banget buat promosi kilat biar nama grup-mu makin kedengeran!",
+    "tags": ["500 LPFPM", "1x sebar", "1 hari" , "Screenshot pendek"]
   },
   {
     "id": 3,
     "name": "Paket Hemat 01",
     "category": "Basic",
-    "price": "Rp 2.000",
-    "perpfpm": "100",
+    "price": "Rp 3.400",
+    "priceReal": "Rp 3.600",
+    "perpfpm": "300",
     "image": "https://picsum.photos/id/100/400/250",
-    "description": "Cocok buat pemula yang baru mau mulai promosi base dengan budget minim.",
-    "tags": ["Amanah", "Fast"]
+    "description": "Gak cukup sekali? Tenang, paket ini kasih kamu slot sebar 3 kali selama 3 hari berturut-turut. Pas banget buat yang pengen branding santai tapi tetep rutin biar orang-orang gak lupa sama grup kamu.",
+    "tags": ["300 LPFPM", "3x sebar", "3 hari" , "Screenshot pendek"]
   },
   {
     "id": 4,
-    "name": "Paket Sultan 02",
+    "name": "Paket Hemat 02",
     "category": "Premium",
-    "price": "Rp 5.000",
-    "perpfpm": "100",
+    "price": "Rp 7.600",
+    "priceReal": "Rp 8.100",
+    "perpfpm": "400",
     "image": "https://picsum.photos/id/101/400/250",
-    "description": "Jangkauan luas, member makin eksis, hasil estetik maksimal.",
-    "tags": ["High Reach", "Priority"]
+    "description": "Ini versi level up dari hemat biasa. Selain dapet slot sebar yang rutin, kamu dapet Screenshot Panjang buat bukti sebar yang lebih detail. Jangkauan luas, laporan pun jelas!",
+    "tags": ["400 LPFPM", "3x sebar", "3 hari" , "Screenshot panjang"]
   }
 ]
