@@ -218,9 +218,7 @@ function renderCalculator() {
                     <div class="calc-result-label">Total Estimasi</div>
                     <div class="calc-result-price" id="calc-price">Rp 0</div>
                     <div class="calc-result-detail" id="calc-detail">— pilih opsi di atas —</div>
-                    <button class="calc-order-btn" onclick="orderViaWA()">
-                        Pesan via WhatsApp <i class="bi bi-whatsapp"></i>
-                    </button>
+                    
 
                     <button class="cart-btn" onclick="addCustomToCart()">
             + Keranjang
@@ -458,8 +456,16 @@ function switchTab(tab) {
   }
 
   console.log(cart)
-
-  list.innerHTML = cart.map((item, idx) => `
+  
+  const formHTML = `
+    <div class="customer-info-form" style="padding: 15px; background: #f9f9f9; border-radius: 8px; margin-bottom: 15px; border: 1px solid #eee;">
+        <h4 style="margin-bottom:10px; font-size:14px; color:#333;">Data Pemesan</h4>
+        <input type="text" id="cust-name" placeholder="Nama Lengkap" style="width:100%; padding:8px; margin-bottom:8px; border:1px solid #ddd; border-radius:4px;">
+        <input type="text" id="cust-contact" placeholder="Nomor WA atau ID Telegram" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;">
+    </div>
+  `;
+  
+  const itemsHTML = cart.map((item, idx) => `
     <div class="cart-item">
       <div class="item-icon ${item.type}">
         ${item.type === 'paket' ? '<i class="bi bi-box-seam"></i>' : '<i class="bi bi-basket2"></i>'}
@@ -509,6 +515,8 @@ function switchTab(tab) {
     </div>
   `).join('')
 
+  list.innerHTML = formHTML + itemsHTML;
+
   const totalQty = cart.reduce((s, i) => s + i.quantity, 0)
   const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0)
 
@@ -533,6 +541,17 @@ function removeItem(idx) {
 }
 
 function prosesOrder() {
+    const name = document.getElementById('cust-name').value.trim();
+  const contact = document.getElementById('cust-contact').value.trim();
+
+  if (!name || !contact) {
+    alert('Mohon isi Nama dan Nomor WA/ID Telegram terlebih dahulu!');
+    return;
+  }
+
+  // Simpan sementara data pemesan ke object global atau localStorage
+  window.customerData = { name, contact };
+
   renderReceipt()
   switchTab('receipt')
 }
@@ -592,6 +611,8 @@ function renderReceipt() {
   const code     = 'BNDT-' + Date.now().toString().slice(-6)
   const total    = cart.reduce((s, i) => s + i.price * i.quantity, 0)
   const totalQty = cart.reduce((s, i) => s + i.quantity, 0)
+  
+  const { name, contact } = window.customerData;
 
   const itemsHTML = cart.map(item => {
     const lpfpmNum   = parseInt(item.lpfpm  || 0)
@@ -628,7 +649,7 @@ function renderReceipt() {
           <span>${fmt(inrushFee * item.quantity)}</span>
         </div>` : ''}
       ` : `
-        <div class="rcpt-item-note">${item.description || ''}</div>
+        
       `}
     `
   }).join('')
@@ -652,6 +673,9 @@ function renderReceipt() {
       </div>
       <div class="rcpt-dots"></div>
       <div class="rcpt-meta">
+      <div class="rcpt-meta-row" style="color: #000; font-weight: bold;"><span>Pemesan</span><span>${name}</span></div>
+        <div class="rcpt-meta-row"><span>Kontak</span><span>${contact}</span></div>
+        <div class="rcpt-dots" style="margin: 5px 0; border-style: none none dashed none;"></div>
         <div class="rcpt-meta-row"><span>Order</span><span>${code}</span></div>
         <div class="rcpt-meta-row"><span>Tanggal</span><span>${tgl} ${jam}</span></div>
         <div class="rcpt-meta-row"><span>Total item</span><span>${totalQty} item</span></div>
@@ -733,6 +757,8 @@ async function _kirimTelegramFromCanvas(canvas, code, total) {
     formData.append('photo', blob, `receipt-${code}.jpg`)
     formData.append('caption',
       `🛒 *Order Baru!*\n` +
+      `Pemesan: ${window.customerData.name}\n` +
+      `Kontak: ${window.customerData.contact}\n` +
       `Order ID: \`${code}\`\n` +
       `Tanggal: ${new Date().toLocaleString('id-ID')}\n\n` +
       `${items}\n\n` +
